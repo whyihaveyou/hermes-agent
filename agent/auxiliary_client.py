@@ -2025,7 +2025,10 @@ def _get_cached_client(
                 _client_cache[cache_key] = (client, default_model, bound_loop)
             else:
                 client, default_model, _ = _client_cache[cache_key]
-    return client, model or default_model
+    # Use default_model (already filtered by resolve_provider_client) when
+    # the requested model is incompatible (e.g. OpenRouter slug for non-OR client).
+    # _compat_model mirrors the guard in resolve_provider_client() for cache hits.
+    return client, _compat_model(client, model, default_model)
 
 
 def _resolve_task_provider_model(
